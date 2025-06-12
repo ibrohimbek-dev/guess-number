@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, StyleSheet, View } from "react-native";
+import {
+	Alert,
+	FlatList,
+	StyleSheet,
+	View,
+	useWindowDimensions,
+} from "react-native";
 import Title from "../components/ui/Title";
 import NumberContainer from "../components/game/NumberContainer";
 import PrimaryButton from "../components/ui/PrimaryButton";
@@ -22,9 +28,19 @@ let minBoundary = 1;
 let maxBoundary = 100;
 
 const GameScreen = ({ userNumber, onGameOver }) => {
+	const { width, height } = useWindowDimensions();
 	const initialGuess = generateRandomBetween(1, 100, userNumber);
 	const [currentGuess, setCurrentGuess] = useState(initialGuess);
 	const [guessRounds, setGuessRounds] = useState([initialGuess]);
+
+	// Responsive calculations
+	const isSmallScreen = width < 380 || height < 500;
+	const isLandscape = width > height;
+	const isVerySmallScreen = width < 350;
+	const buttonSize = isVerySmallScreen ? 20 : isSmallScreen ? 24 : 28;
+	const paddingValue = isVerySmallScreen ? 8 : isSmallScreen ? 12 : 24;
+	const marginValue = isVerySmallScreen ? 8 : isSmallScreen ? 12 : 16;
+	const marginTop = height > 380 ? 70 : 0;
 
 	useEffect(() => {
 		if (currentGuess === userNumber) {
@@ -65,38 +81,71 @@ const GameScreen = ({ userNumber, onGameOver }) => {
 	const guessRoundsListLength = guessRounds.length;
 
 	return (
-		<View style={styles.screen}>
-			<Title>Opponent's Guess</Title>
+		<View
+			style={[
+				styles.screen,
+				{ padding: paddingValue, marginTop: marginTop },
+				isLandscape && styles.landscapeScreen,
+			]}
+		>
+			<Title style={isSmallScreen && { fontSize: 24 }}>Opponent's Guess</Title>
 
-			<NumberContainer>{currentGuess}</NumberContainer>
-			<Card>
-				<InstructionText style={styles.instructionText}>
+			<NumberContainer
+				style={isSmallScreen && { marginVertical: marginValue / 2 }}
+			>
+				{currentGuess}
+			</NumberContainer>
+
+			<Card
+				style={[
+					styles.card,
+					isLandscape && styles.landscapeCard,
+					{ marginVertical: marginValue },
+				]}
+			>
+				<InstructionText
+					style={[styles.instructionText, { marginBottom: marginValue }]}
+				>
 					Higher or Lower?
 				</InstructionText>
 				<View style={styles.buttonsContainer}>
 					<View style={styles.buttonContainer}>
-						<PrimaryButton onPress={nextGuessHandler.bind(this, "lower")}>
-							<Ionicons name="remove" size={24} color="white" />
+						<PrimaryButton
+							onPress={nextGuessHandler.bind(this, "lower")}
+							style={isSmallScreen && { padding: 8 }}
+						>
+							<Ionicons name="remove" size={buttonSize} color="white" />
 						</PrimaryButton>
 					</View>
 					<View style={styles.buttonContainer}>
-						<PrimaryButton onPress={nextGuessHandler.bind(this, "greater")}>
-							<Ionicons name="add" size={24} color="white" />
+						<PrimaryButton
+							onPress={nextGuessHandler.bind(this, "greater")}
+							style={isSmallScreen && { padding: 8 }}
+						>
+							<Ionicons name="add" size={buttonSize} color="white" />
 						</PrimaryButton>
 					</View>
 				</View>
 			</Card>
 
-			<View style={styles.listContainer}>
+			<View
+				style={[
+					styles.listContainer,
+					{ padding: paddingValue / 2 },
+					isLandscape && styles.landscapeList,
+				]}
+			>
 				<FlatList
 					data={guessRounds}
 					renderItem={(itemData) => (
 						<GuessLogItem
 							roundNumber={guessRoundsListLength - itemData.index}
 							guess={itemData.item}
+							isSmallScreen={isSmallScreen}
 						/>
 					)}
-					keyExtractor={(item) => item}
+					keyExtractor={(item) => item.toString()}
+					contentContainerStyle={isLandscape && { paddingBottom: 20 }}
 				/>
 			</View>
 		</View>
@@ -108,23 +157,44 @@ export default GameScreen;
 const styles = StyleSheet.create({
 	screen: {
 		flex: 1,
-		padding: 24,
+		alignItems: "center",
+		marginTop: 100,
 	},
-
+	landscapeScreen: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "space-around",
+		alignItems: "flex-start",
+		paddingTop: 24,
+	},
+	card: {
+		width: "90%",
+		maxWidth: 400,
+		minWidth: 300,
+	},
+	landscapeCard: {
+		width: "45%",
+		marginHorizontal: 8,
+	},
 	listContainer: {
 		flex: 1,
-		padding: 16,
+		width: "90%",
 	},
-
+	landscapeList: {
+		width: "45%",
+		flex: 0,
+		maxHeight: "60%",
+	},
 	instructionText: {
-		marginBottom: 12,
+		textAlign: "center",
 	},
-
 	buttonsContainer: {
 		flexDirection: "row",
+		justifyContent: "center",
 	},
-
 	buttonContainer: {
 		flex: 1,
+		maxWidth: 150,
+		marginHorizontal: 8,
 	},
 });
