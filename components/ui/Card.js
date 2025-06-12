@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
-import Colors from "../../constants/colors";
+import Colors from "../../constants/colors.android";
 
 const Card = ({ children, style }) => {
 	const { width, height } = useWindowDimensions();

@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View, StyleSheet, Dimensions } from "react-native";
-import Colors from "../../constants/colors";
+import Colors from "../../constants/colors.android";
 
 const NumberContainer = ({ children }) => {
 	return (

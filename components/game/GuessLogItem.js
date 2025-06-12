@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
-import Colors from "../../constants/colors";
+import Colors from "../../constants/colors.android";
 
 const GuessLogItem = ({ roundNumber, guess, isSmallScreen }) => {
 	const { width } = useWindowDimensions();
